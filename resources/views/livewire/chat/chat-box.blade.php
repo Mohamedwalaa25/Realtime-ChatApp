@@ -1,5 +1,6 @@
-<div>
+<div class="w-full overflow-hidden">
 
+    <div class="border-b flex flex-col overflow-y-scroll grow h-full">
     <header class="w-full sticky inset-x-0 flex pb-[5px] pt-[5px] top-0 z-10 bg-white border-b ">
 
         <div class="flex w-full items-center px-2 lg:px-4 gap-2 md:gap-5">
@@ -34,13 +35,13 @@
                 <x-avatar/>
             </div>
             {{--    message body--}}
-            <div @class(['flex flex-wrap text-[15px]  rounded-xl p-2.5 flex flex-col text-black bg-[#f6f6f8fb]',
-                         'rounded-bl-none border  border-gray-200/40 '=>false,
-                         'rounded-br-none bg-blue-500/80 text-white'=>true
-               ])>
+{{--            <div @class(['flex flex-wrap text-[15px]  rounded-xl p-2.5 flex flex-col text-black bg-[#f6f6f8fb]',--}}
+{{--//                         'rounded-bl-none border  border-gray-200/40 '=>false,--}}
+{{--//                         'rounded-br-none bg-blue-500/80 text-white'=>true--}}
+{{--               ])>--}}
                 <div
                     style="background-color: #0084FF; top: -5px; color: white; padding: 10px 15px; border-radius: 20px; max-width: 60%; margin: 5px 0; position: relative; display: inline-block; float: right;">
-                    <p style="white-space: normal; word-wrap: break-word; font-size: 14px; line-height: 1.5; text-align: left;">
+                    <p >
                         Lorem ipsum dolor sit amet, consectetur adipisicing elit. Alias dignissimos eos illo
                         molestiae quae soluta vel. Aliquid consequatur, eaque incidunt iure non numquam optio qui,
                         quo quos soluta unde voluptatum.
@@ -90,10 +91,49 @@
 
             </div>
 
-        </div>
+{{--        </div>--}}
 
     </main>
+<footer class="shrink-0 z-10 bg-white inset-x-0">
 
+    <div class=" p-2 border-t">
+
+        <form method="POST" autocapitalize="off">
+            @csrf
+
+            <input type="hidden" autocomplete="false" style="display:none">
+
+            <div class="grid grid-cols-12">
+                <input
+
+                    type="text"
+                    autocomplete="off"
+                    autofocus
+                    placeholder="write your message here"
+                    maxlength="1700"
+                    class="col-span-10 bg-gray-100 border-0 outline-0 focus:border-0 focus:ring-0 hover:ring-0 rounded-lg  focus:outline-none"
+                >
+
+                <button class="col-span-2" type='submit'>Send</button>
+
+            </div>
+
+        </form>
+
+        @error('body')
+
+        <p> {{$message}} </p>
+
+        @enderror
+
+    </div>
+
+
+
+
+
+</footer>
+    </div>
 
 </div>
 
