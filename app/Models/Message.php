@@ -18,9 +18,8 @@ class Message extends Model
         'sender_deleted_at',
         'receiver_deleted_at',
     ];
-    protected $dateFormat = [
-        "read_at","sender_deleted_at","receiver_deleted_at"
-    ];
+    protected $dates=['read_at','receiver_deleted_at','sender_deleted_at'];
+
 
     public function conversation()
     {

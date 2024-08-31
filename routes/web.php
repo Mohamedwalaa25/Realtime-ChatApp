@@ -20,7 +20,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::middleware('auth')->group(function () {
 Route::get('/chat',Index::class)->name('chat.index');
 Route::get('/chat/{query}',Chat::class)->name('chat');
 Route::get('/users',Users::class)->name('users');
+});
 require __DIR__.'/auth.php';
