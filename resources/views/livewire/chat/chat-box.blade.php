@@ -7,7 +7,18 @@
     x-init="
         height= conversationElement.scrollHeight;
         $nextTick(()=>conversationElement.scrollTop= height);
-"
+
+
+        Echo.private('users.{{Auth()->User()->id}}')
+        .notification((notification)=>{
+            if(notification['type']== 'App\\Notifications\\MessageRead' && notification['conversation_id']== {{$this->selectedConversation->id}})
+            {
+
+                markAsRead=true;
+            }
+        });
+ "
+
     @scroll-bottom.window="
  $nextTick(()=>
  conversationElement.scrollTop= conversationElement.scrollHeight
@@ -61,7 +72,9 @@
                         @endphp
 
                     @endif
-                    <div @class([
+                    <div
+                        wire:key={{time().$key}}""
+                        @class([
                     'max-w-[85%] md:max-w-[78%] flex w-auto gap-2 relative mt-2',
                     'ml-auto' => $message->sender_id === auth()->user()->id,
                       ]) >

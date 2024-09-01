@@ -10,6 +10,7 @@ class ChatList extends Component
     public $query;
     protected $listeners =['refresh'=>'$refresh'];
 
+
     public function render()
     {
         $user = auth()->user();
