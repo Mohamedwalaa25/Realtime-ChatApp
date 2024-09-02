@@ -11,8 +11,12 @@ class ChatBox extends Component
 {
     public $selectedConversation;
     public $body;
-    public $loadedMessage;
+    public $loadedMessages;
     public $paginate_var = 10;
+
+    protected $listeners = [
+        'loadMore'
+    ];
 
 
     public function getListeners()
@@ -41,8 +45,8 @@ class ChatBox extends Component
                 $newMessage = Message::find($event['message_id']);
 
 
-                #push message
-                $this->loadedMessage->push($newMessage);
+                $this->loadedMessages->push($newMessage);
+
                 $newMessage->read_at = now();
                 $newMessage->save();
 
@@ -52,54 +56,109 @@ class ChatBox extends Component
             }
         }
     }
-            public function loadedMessage()
-            {
-                $this->loadedMessage = Message::query()->where('conversation_id', $this->selectedConversation->id)->get();
-            }
+
+    public function loadMore(): void
+    {
+        $this->paginate_var += 10;
+
+        $this->loadMessages();
 
 
-            public
-            function sendMessage()
-            {
-                $this->validate(['body' => 'required|string']);
+        $this->dispatch('update-chat-height');
+    }
 
-                $createdMessage = Message::create([
-                    'body' => $this->body,
-                    'conversation_id' => $this->selectedConversation->id,
-                    'sender_id' => auth()->user()->id,
-                    'receiver_id' => $this->selectedConversation->getReceiver()->id
-                ]);
 
-                $this->reset('body');
-                $this->loadedMessage->push($createdMessage);
 
-                $this->dispatch("scroll-bottom");
 
-                $this->selectedConversation->updated_at = now();
-                $this->selectedConversation->save();
+    public function loadMessages()
+    {
 
-                $this->dispatch("refresh")->to("chat.chat-list");
+        $userId = auth()->id();
+        #get count
+        $count = Message::where('conversation_id', $this->selectedConversation->id)
+            ->where(function ($query) use ($userId) {
 
-                #brpdcast
-                $this->selectedConversation->getReceiver()
-                    ->notify(new MessageSent(
-                        Auth()->User(),
-                        $createdMessage,
-                        $this->selectedConversation,
-                        $this->selectedConversation->getReceiver()->id
+                $query->where('sender_id', $userId)
+                    ->whereNull('sender_deleted_at');
+            })->orWhere(function ($query) use ($userId) {
 
-                    ));
-            }
+                $query->where('receiver_id', $userId)
+                    ->whereNull('receiver_deleted_at');
+            })
+            ->count();
 
-            public
-            function mount()
-            {
-                $this->loadedMessage();
-            }
+        #skip and query
+        $this->loadedMessages = Message::where('conversation_id', $this->selectedConversation->id)
+            ->where(function ($query) use ($userId) {
 
-            public
-            function render()
-            {
-                return view('livewire.chat.chat-box');
-            }
-        }
+                $query->where('sender_id', $userId)
+                    ->whereNull('sender_deleted_at');
+            })->orWhere(function ($query) use ($userId) {
+
+                $query->where('receiver_id', $userId)
+                    ->whereNull('receiver_deleted_at');
+            })
+            ->skip($count - $this->paginate_var)
+            ->take($this->paginate_var)
+            ->get();
+
+
+        return $this->loadedMessages;
+    }
+
+    public function sendMessage()
+    {
+
+        $this->validate(['body' => 'required|string']);
+
+
+        $createdMessage = Message::create([
+            'conversation_id' => $this->selectedConversation->id,
+            'sender_id' => auth()->id(),
+            'receiver_id' => $this->selectedConversation->getReceiver()->id,
+            'body' => $this->body
+
+        ]);
+
+
+        $this->reset('body');
+
+        #scroll to bottom
+        $this->dispatch('scroll-bottom');
+
+
+        #push the message
+        $this->loadedMessages->push($createdMessage);
+
+
+        #update conversation model
+        $this->selectedConversation->updated_at = now();
+        $this->selectedConversation->save();
+
+
+        #refresh chatlist
+        $this->dispatch( 'refresh')->to('chat.chat-list');
+
+        #broadcast
+
+        $this->selectedConversation->getReceiver()
+            ->notify(new MessageSent(
+                Auth()->User(),
+                $createdMessage,
+                $this->selectedConversation,
+                $this->selectedConversation->getReceiver()->id
+
+            ));
+    }
+    public function mount()
+    {
+
+        $this->loadMessages();
+    }
+
+
+    public function render()
+    {
+        return view('livewire.chat.chat-box');
+    }
+}

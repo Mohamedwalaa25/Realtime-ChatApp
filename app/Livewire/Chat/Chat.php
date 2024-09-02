@@ -13,7 +13,7 @@ class Chat extends Component
 
     public function mount()
     {
-        $this->selectedConversation = Conversation::query()->findOrFail($this->query);
+        $this->selectedConversation= Conversation::findOrFail($this->query);
 
         Message::where('conversation_id',$this->selectedConversation->id)
             ->where('receiver_id',auth()->id())

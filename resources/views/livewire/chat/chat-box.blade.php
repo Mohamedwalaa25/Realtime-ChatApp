@@ -28,6 +28,9 @@
     class="w-full overflow-hidden">
 
     <div class="border-b flex flex-col overflow-y-scroll grow h-full">
+
+
+        {{-- header --}}
         <header class="w-full sticky inset-x-0 flex pb-[5px] pt-[5px] top-0 z-10 bg-white border-b ">
 
             <div class="flex w-full items-center px-2 lg:px-4 gap-2 md:gap-5">
@@ -40,44 +43,80 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                               d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75"/>
                     </svg>
+
+
                 </a>
 
+
                 {{-- avatar --}}
+
+
                 <div class="shrink-0">
                     <x-avatar class="h-9 w-9 lg:w-11 lg:h-11"/>
                 </div>
+
+
                 <h6 class="font-bold truncate"> {{$selectedConversation->getReceiver()->email}} </h6>
+
+
             </div>
+
+
         </header>
-        {{--body--}}
+
+
+        {{-- body --}}
         <main
+            @scroll="
+      scropTop = $el.scrollTop;
+
+      if(scropTop <= 0){
+
+        window.livewire.dispatch('loadMore');
+
+      }
+
+     "
+
+            @update-chat-height.window="
+
+         newHeight= $el.scrollHeight;
+
+         oldHeight= height;
+         $el.scrollTop= newHeight- oldHeight;
+
+         height=newHeight;
+
+     "
             id="conversation"
             class="flex flex-col gap-3 p-2.5 overflow-y-auto  flex-grow overscroll-contain overflow-x-hidden w-full my-auto">
 
-            @if ($loadedMessage)
+            @if ($loadedMessages)
 
                 @php
                     $previousMessage= null;
                 @endphp
 
 
-                @foreach ($loadedMessage as $key=> $message)
+                @foreach ($loadedMessages as $key=> $message)
 
                     {{-- keep track of the previous message --}}
 
                     @if ($key>0)
 
                         @php
-                            $previousMessage= $loadedMessage->get($key-1)
+                            $previousMessage= $loadedMessages->get($key-1)
                         @endphp
 
                     @endif
+
+
                     <div
-                        wire:key={{time().$key}}""
+                        wire:key="{{time().$key}}"
                         @class([
-                    'max-w-[85%] md:max-w-[78%] flex w-auto gap-2 relative mt-2',
-                    'ml-auto' => $message->sender_id === auth()->user()->id,
-                      ]) >
+                            'max-w-[85%] md:max-w-[78%] flex w-auto gap-2 relative mt-2',
+                            'ml-auto'=>$message->sender_id=== auth()->id(),
+                                ]) >
 
                         {{-- avatar --}}
 
@@ -87,9 +126,10 @@
                     'hidden'=>$message->sender_id === auth()->id()
                         ])>
 
-                            <x-avatar />
+                            <x-avatar/>
                         </div>
-                        {{--                        message body--}}
+                        {{-- messsage body --}}
+
                         <div @class(['flex flex-wrap text-[15px]  rounded-xl p-2.5 flex flex-col text-black bg-[#f6f6f8fb]',
                          'rounded-bl-none border  border-gray-200/40 '=>!($message->sender_id=== auth()->id()),
                          'rounded-br-none bg-blue-500/80 text-white'=>$message->sender_id=== auth()->id()
@@ -99,6 +139,7 @@
                             <p class="whitespace-normal truncate text-sm md:text-base tracking-wide lg:tracking-normal">
                                 {{$message->body}}
                             </p>
+
 
                             <div class="ml-auto flex gap-2">
 
@@ -113,6 +154,7 @@
                                     {{$message->created_at->format('g:i a')}}
 
                                 </p>
+
 
                                 {{-- message status , only show if message belongs auth --}}
 
@@ -183,13 +225,14 @@
                             autofocus
                             placeholder="write your message here"
                             maxlength="1700"
-                            class="col-span-10 bg-gray-100 border-0 outline-0 focus:border-0 focus:ring-0 hover:ring-0 rounded-lg focus:outline-none"
+                            class="col-span-10 bg-gray-100 border-0 outline-0 focus:border-0 focus:ring-0 hover:ring-0 rounded-lg  focus:outline-none"
                         >
 
                         <button x-bind:disabled="!body.trim()" class="col-span-2" type='submit'>Send</button>
-                    </div>
-                </form>
 
+                    </div>
+
+                </form>
 
                 @error('body')
 
