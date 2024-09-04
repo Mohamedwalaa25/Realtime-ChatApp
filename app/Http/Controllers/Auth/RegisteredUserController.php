@@ -29,6 +29,12 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $imagePath = null;
+        if ($request->hasFile('profile_image')) {
+            $image = $request->file('profile_image')->getClientOriginalName();
+            $path = $request->file('profile_image')->storeAs('users', $image, 'public');
+        }
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
@@ -39,12 +45,13 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'profile_image' => $path ?? null,
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('chat.index', absolute: false));
     }
 }

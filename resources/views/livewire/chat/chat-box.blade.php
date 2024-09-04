@@ -38,11 +38,7 @@
                 <a class="shrink-0 lg:hidden" href="#">
 
 
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                         stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75"/>
-                    </svg>
+                    <x-avatar   src="{{ asset('storage/'.$selectedConversation->getReceiver()->profile_image) }}"  class="h-9 w-9 lg:w-11 lg:h-11"/>
 
 
                 </a>
@@ -52,7 +48,7 @@
 
 
                 <div class="shrink-0">
-                    <x-avatar class="h-9 w-9 lg:w-11 lg:h-11"/>
+                    <x-avatar   src="{{ asset('storage/'.$selectedConversation->getReceiver()->profile_image) }}"  class="h-9 w-9 lg:w-11 lg:h-11"/>
                 </div>
 
 
@@ -126,7 +122,7 @@
                     'hidden'=>$message->sender_id === auth()->id()
                         ])>
 
-                            <x-avatar/>
+                            <x-avatar src="{{ asset('storage/'.$selectedConversation->getReceiver()->profile_image) }}"/>
                         </div>
                         {{-- messsage body --}}
 

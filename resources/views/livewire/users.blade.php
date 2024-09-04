@@ -15,7 +15,7 @@
 
                 <div class="flex flex-col items-center pb-10">
 
-                    <img src="https://img.freepik.com/free-psd/3d-illustration-person-with-sunglasses_23-2149436188.jpg?size=338&ext=jpg&ga=GA1.1.2008272138.1724889600&semt=ais_hybrid" alt="image"  class="w-24 h-24 mb-4 rounded-full shadow-lg">
+                    <img src="{{ asset('storage/'. $user->profile_image) }}" alt="Profile Image" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;">
                     <h5 class="mb-1 text-xl font-medium text-gray-900 " >
                         {{$user->name}}
                     </h5>
